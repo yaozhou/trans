@@ -21,7 +21,7 @@ var point = new BMap.Point(121.40854906623, 31.14475218062) ;
 map.enableScrollWheelZoom() ;
 map.centerAndZoom(point, 12);
 
- console.log(JSON.stringify(g_line)) ;
+ //console.log(JSON.stringify(g_line)) ;
 
 
 for (var i = 0; i < g_line.length; i++) {
@@ -34,6 +34,10 @@ for (var i = 0; i < g_line.length; i++) {
 			var marker = new BMap.Marker(new BMap.Point(station.position.lng, station.position.lat)) ;
 			marker.setLabel(new BMap.Label(station.name+":"+i)) ;
 			map.addOverlay(marker) ;
+
+			marker.addEventListener("click", function(station){    
+			 	console.log("click" + station.name) ;
+			}.bind(marker, station)); 
 		};
 
 	};
