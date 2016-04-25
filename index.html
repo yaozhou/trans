@@ -1,0 +1,88 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>百度地图</title>
+<script type="text/javascript" src="http://api.map.baidu.com/api?v=1.2"></script>
+ <script type="text/javascript" src="js/line.js"></script>
+</head>
+<body>
+<div style="width:100%;height:600px" id="container"></div>
+<div id="results" style="float:left;width:300px;height:500px;font-size:13px;"></div>
+</body>
+</html>
+
+<script type="text/javascript">
+
+
+var map = new BMap.Map("container");
+var point = new BMap.Point(121.40854906623, 31.14475218062) ;
+map.enableScrollWheelZoom() ;
+map.centerAndZoom(point, 12);
+
+ console.log(JSON.stringify(g_line)) ;
+
+
+for (var i = 0; i < g_line.length; i++) {
+	if (g_line[i] == undefined) continue ;
+
+	for (var j = 0; j < g_line[i].length; j++) {
+
+		for (var k = 0; k < g_line[i][j].stations.length; k++) {
+			var station = g_line[i][j].stations[k] ;
+			var marker = new BMap.Marker(new BMap.Point(station.position.lng, station.position.lat)) ;
+			marker.setLabel(new BMap.Label(station.name+":"+i)) ;
+			map.addOverlay(marker) ;
+		};
+
+	};
+};
+
+// for (var i = 0; i < pos.length; i++) {
+//   var marker = new BMap.Marker(new BMap.Point(pos[i].lng, pos[i].lat)) ;
+//   marker.setTitle(pos[i].name) ;
+//   marker.setLabel(new BMap.Label(pos[i].name)) ;
+//   map.addOverlay(marker) ;
+// };
+// var marker = new BMap.Marker(point) ;
+// map.addOverlay(marker) ;
+
+
+
+
+
+// function calculate_inter(a, b) {
+//   return a, b 集合中公有部分
+
+//   针对每个交叉点，计算a,b时间差最小的点
+//   折中调整交叉点时间
+
+// 将c的时间调整加上calculate_inter,
+// calculate_inter(c, b) ;
+// }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</script>
