@@ -8,24 +8,88 @@
  <script type="text/javascript" src="js/line.js"></script>
 </head>
 <body>
-<div style="width:100%;height:600px" id="container"></div>
+<div style="width:100%;height:800px" id="container"></div>
 <div id="results" style="float:left;width:300px;height:500px;font-size:13px;"></div>
+<div id="log" style="float:left;width:300px;height:500px;font-size:13px;"></div>
 </body>
 </html>
 
 <script type="text/javascript">
 
 
+var g_route = [
+	// 锦江乐园 -> 东川路
+	[10003, 10002, 10001, 10000, 50000, 50001, 50002, 50003, 50004, 50005, 50006] ,
+	// 徐家汇 -> 汶水路
+	[10007, 10008, 10009, 10010, 10011, 10012, 10013, 10014, 10015, 10016, 10017, 10018, 10019] ,
+	// 徐家汇 -> 汶水路
+ 	[10007, 10008, 10009, 10010, 10011, 10012, 10013, 10014, 10015, 10016, 10017, 10018, 10019] ,
+ 	// 娄山关路 -> 张江高科
+	[20015, 20014, 20013, 20012, 20011, 20010, 20009, 20008, 20007, 20006, 20005, 20004, 20003, 20002] ,
+	// 唐镇 -> 漕河泾开发区
+	[20107, 20108, 20000, 20001, 20002, 20003, 20004, 20005, 20006, 90001, 90002, 90003, 90004, 90005, 90006, 90007, 90008, 90009, 90010, 90011, 90012] ,
+	// 顾戴路 -> 虹梅路
+	[120002, 120003, 120004] ,
+	// 东川路 -> 南京东路
+	[50006, 50005, 50004, 50003, 50002, 50001, 50000, 10000, 10001, 10002, 10003, 10004, 10005, 10006, 10007, 10008, 10009, 10010,10011, 10012, 20010, 20009] ,
+	// 北新泾 -> 人民广场
+	[20017, 20016, 20015, 20014, 20013, 20012, 20011, 20010] ,
+	// 彭浦新村 -> 上海火车站
+	[10020, 10019, 10018, 10017, 10016, 10015] 
+] ;
+
+// g_route = [
+// 	[10003, 10002, 10001], 
+// 	[10003, 10002]
+// ] ;
+
+function getPos(station_id) {
+
+	var line_num = Math.floor(station_id / 10000) ;
+	var line_sub_num = Math.floor(station_id / 100) % 100 ;
+	var station_num = station_id % 100 ;
+
+	var pos = g_line[line_num][line_sub_num].stations[station_num].position ;
+	// 需要重新生成一个Point实例，否则修改的是同一个g_line中的pos对象
+	var ret_pos = new BMap.Point(pos.lng + (Math.random() - 0.5) * 0.002, pos.lat + (Math.random() - 0.5) * 0.002) ;
+
+	return ret_pos ;
+}
+
+
+
+var g_control = [
+			false,
+			false, 	// 1
+			false, 	// 2
+			false,	// 3
+			false, 	// 4
+			false, 	// 5
+			false,	// 6
+			false, 	// 7
+			false, 	// 8
+			false,	// 9
+			false, 	// 10
+			false, 	// 11
+			false,	// 12
+			false, 	// 13
+			false, 	// 
+			false,	// 
+			false	// 16
+		] ;
+
+
+
 var map = new BMap.Map("container");
 var point = new BMap.Point(121.40854906623, 31.14475218062) ;
 map.enableScrollWheelZoom() ;
-map.centerAndZoom(point, 12);
+map.centerAndZoom(point, 15);
 
- //console.log(JSON.stringify(g_line)) ;
+var g_road = [] ;
 
-
-for (var i = 0; i < g_line.length; i++) {
-	if (g_line[i] == undefined) continue ;
+ 
+for (var i = 1; i < g_line.length; i++) {
+	if (g_line[i] == undefined || !g_control[i] ) continue ;
 
 	for (var j = 0; j < g_line[i].length; j++) {
 
@@ -36,25 +100,53 @@ for (var i = 0; i < g_line.length; i++) {
 			map.addOverlay(marker) ;
 
 			marker.addEventListener("click", function(station){    
-			 	console.log("click" + station.name) ;
+				g_road.push(station.id) ;
+			 	console.log(station.name + station.id) ;
+			 	console.log(g_road) ;
 			}.bind(marker, station)); 
 		};
-
 	};
 };
 
-// for (var i = 0; i < pos.length; i++) {
-//   var marker = new BMap.Marker(new BMap.Point(pos[i].lng, pos[i].lat)) ;
-//   marker.setTitle(pos[i].name) ;
-//   marker.setLabel(new BMap.Label(pos[i].name)) ;
-//   map.addOverlay(marker) ;
-// };
-// var marker = new BMap.Marker(point) ;
-// map.addOverlay(marker) ;
+var g_color = [ "green", "black", "red", "blue", "gray", "purple"] ;
+
+for (var i = 0; i < g_route.length; i++) {
+	var points = [] ;
+	for (var j = 0; j < g_route[i].length; j++) {
+		var point = getPos(g_route[i][j]) ;
+		points.push(point) ;
+	};
+
+	var color = g_color[ i % g_color.length ] ;
+	var polyline = new BMap.Polyline(points, {strokeColor:color, strokeWeight:6, strokeOpacity:0.8}) ;
+	map.addOverlay(polyline) ;
+
+// 设置标注
+	for (var j = 0; j < g_route[i].length; j++) {
+		if (j == 0 || j == g_route[i].length - 1) {
+			var point = getPos(g_route[i][j]) ;
+			var marker = new BMap.Marker(point) ;
+			marker.setLabel(new BMap.Label(String(i))) ;
+			map.addOverlay(marker) ;
+
+			marker.addEventListener("click", function(polyline){    
+				if (polyline.isVisible() ) 
+					polyline.hide() ;
+				else
+					polyline.show() ;
+				console.log(polyline) ;
+			}.bind(marker, polyline)); 
+		}
+	};
+
+	
+};
 
 
-
-
+// var transit = new BMap.TransitRoute(map, {    
+//  renderOptions: {map: map}    
+// });    
+// transit.search(point1, point2) ;
 
 // function calculate_inter(a, b) {
 //   return a, b 集合中公有部分

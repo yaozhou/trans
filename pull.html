@@ -28,8 +28,12 @@ function dump_all() {
     for (var j = 0; j < g_result[i].length; j++) {
         r[i][j] = {} ;
         r[i][j].name = g_result[i][j].name ;
-        r[i][j].stations = g_result[i][j]._stations ;
+        var stations = g_result[i][j]._stations ;
+        r[i][j].stations = stations ;
 
+        for (var k = 0; k < stations.length; k++) {
+          stations[k].id = i * 10000 + j * 100 + k ;
+        };
     };
   };
 
