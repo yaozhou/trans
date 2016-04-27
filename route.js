@@ -1,11 +1,40 @@
 var http = require('http') ;
 var fs = require('fs') ;
+var line_reader = require('readline') ;
+require('./js/line.js') ;
 
 // console.log(JSON.stringify(process.argv)) ;
 
-var src = "徐家汇地铁站" ;
-var dest = "汶水路地铁站" ;
+var src_station = "顾戴路" ;
+var dest_station = "虹梅路" ;
 
+//console.log(g_line) ;
+
+function get_station_pos(name) {
+	for (var i = 1; i < g_line.length; i++) {	
+		if (g_line[i] == undefined) continue ;
+
+		for (var j = 0; j < g_line[i].length; j++) {
+			var stations = g_line[i][j].stations ;
+			
+			for(var k = 0; k<stations.length; k++) {
+				if (name == stations[k].name)
+					return stations[k].position ;
+			}
+		};
+	};
+
+	console.log("Can't find " + name) ;
+}
+
+var src_point = get_station_pos(src_station) ;
+var dest_point = get_station_pos(dest_station) ;
+
+if (src_point == undefined || dest_point == undefined)  
+	process.exit(0) ;
+
+var src = String(src_point.lat) + ',' + String(src_point.lng) ;
+var dest = String(dest_point.lat) + ',' + String(dest_point.lng) ;
 
 var query_str = '/direction/v1?mode=transit&origin=' + 
 				src + '&destination=' + dest + 
@@ -25,6 +54,13 @@ function callback(response) {
 		proc_result(str) ;
 	})
 }
+
+var lr = line_reader.createInterface( {input: require('fs').createReadStream('card.txt')} ) ;
+lr.on('line', function(line) {
+	console.log('Line from file', line) ;
+})
+
+
 
 function proc_result(str) {
 	var result = JSON.parse(str) ;

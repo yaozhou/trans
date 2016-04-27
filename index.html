@@ -56,6 +56,21 @@ function getPos(station_id) {
 	return ret_pos ;
 }
 
+function getStation(name) {
+	for (var i = 1; i < g_line.length; i++) {	
+		if (g_line[i] == undefined) continue ;
+
+		for (var j = 0; j < g_line[i].length; j++) {
+			var stations = g_line[i][j].stations ;
+			
+			for(var k = 0; k<stations.length; k++) {
+				if (name == stations.name)
+					return station.position ;
+			}
+		};
+	};
+}
+
 
 
 var g_control = [
