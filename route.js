@@ -136,15 +136,16 @@ function get_stations(line, a, b) {
 		var idx_b = get_station_idx(stations, b) ;
 		if (idx_a < 0 || idx_b < 0) continue ;
 
-		var s = idx_a, e = idx_b ;
-		if (idx_a > idx_b) {
-			s = idx_b ;
-			e = idx_a ;
+		if ( idx_a < idx_b) {
+			for(var i = idx_a; i<=idx_b; ++i){
+				list.push(stations[i].id) ;
+			}
+		}else{
+			for(var i=idx_a; i>=idx_b; --i) {
+				list.push(stations[i].id) ;
+			}
 		}
-
-		for (var i = s; i <= e; i++) {
-			list.push(stations[i].id) ;
-		};
+		
 		return list ;
 	};
 
@@ -153,26 +154,35 @@ function get_stations(line, a, b) {
 }
 
 
- // var ary  = get_stations(1, "上海火车站", "陕西南路") ;
- // console.log(ary) ;
+var g_road_line = [] ;
 
+function calculate_client_line() {
+	var instream = fs.createReadStream('./road') ;
+	var outstream = new stream ;
+	var lr = line_reader.createInterface( instream, outstream ) ;
+	lr.on('line', function(line) {
+		var ary = line.split(',') ;
+		var result = [] ;
+		for (var i = 0; i < ary.length; i+=3) {
+			var line = ary[i+0] ;
+			line = line.replace("地铁", "") ;
+			line = line.replace("号线", "") ;
+			var start = ary[i+1] ;
+			var end = ary[i+2] ;
+			//console.log("line:" + line + " start:" + start + " end:" + end) ;
+			var r = get_stations(parseInt(line), start, end) ;
+			result = result.concat(r) ;
+		};
+		g_road_line.push(result) ;
+	})	
 
- var instream = fs.createReadStream('./road') ;
-var outstream = new stream ;
-var lr = line_reader.createInterface( instream, outstream ) ;
-lr.on('line', function(line) {
-	var ary = line.split(',') ;
-	for (var i = 0; i < ary.length; i+=3) {
-		var line = ary[i+0] ;
-		line = line.replace("地铁", "") ;
-		line = line.replace("号线", "") ;
-		var start = ary[i+1] ;
-		var end = ary[i+2] ;
-		console.log("line:" + line + " start:" + start + " end:" + end) ;
+	lr.on('end', function() {
+		console.log("end") ;
+	})
 
-		var result = get_stations(parseInt(line), start, end) ;
-		console.log(result) ;
-	};
-})	
+	lr.on('close', function(){
+		console.log(g_road_line) ;
+	})
+}
 
 
