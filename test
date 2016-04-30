@@ -13,6 +13,9 @@ http://api.map.baidu.com/direction/v1?mode=transit&origin=莲花路310弄8号&de
 http://api.map.baidu.com/direction/v1?mode=transit&origin=31.199145,121.444743&destination=桂平路漕宝路&region=上海&output=json&ak=Bwo7Xnug9QMANwsEXnDKfUmrqry335zb
 
 
+http://api.map.baidu.com/direction/v1?mode=transit&origin=唐镇地铁站&destination=漕河泾开发区地铁站&region=上海&output=json&ak=Bwo7Xnug9QMANwsEXnDKfUmrqry335zb
+
+
 cat line7 | awk '{print 700+NR",// "$1}'
 
 
