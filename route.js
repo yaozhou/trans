@@ -2,7 +2,11 @@ var http = require('http') ;
 var fs = require('fs') ;
 var line_reader = require('readline') ;
 var stream = require('stream') ;
+var intersection = require('array-intersection');
+
 require('./js/line.js') ;
+require('./js/result_line.js')
+require('./js/inter.js')
 
 // console.log(JSON.stringify(process.argv)) ;
 
@@ -184,5 +188,79 @@ function calculate_client_line() {
 		console.log(g_road_line) ;
 	})
 }
+
+
+
+function getSolu(idx_a, idx_b) {
+	var route_a = g_route[idx_a] ;
+	var route_b = g_route[idx_b] ;
+
+	var ret = {inter:false, list:[]} ;
+	
+	var inter = intersection(route_a, route_b) ;
+	if (inter.length > 0) {
+		//console.log("直接相交:" + JSON.stringify(inter)) ;
+		ret.inter = true ;
+		return ret ; 
+	}
+
+	for(var i=0; i<g_route.length; ++i) {
+		if (i == idx_a|| i == idx_b) continue ;
+
+		var ac = intersection(route_a, g_route[i]) ;
+		var bc = intersection(route_b, g_route[i]) ;
+
+		if (ac.length > 0 && bc.length > 0) {
+			ret.list.push(i) ;
+		}
+	}
+
+	return ret ;
+}
+
+var g_solu = {} ;
+
+function caculate_inter() {
+	for(var i=0; i<g_route.length; ++i) {
+		g_solu[i] = {} ;
+		for(var j=i+1; j<g_route.length; ++j) {
+			g_solu[i][j] = {} ;
+			g_solu[i][j] = getSolu(i, j) ;
+			//console.log("solu:" + i + "->" + j + ":") ;
+			//console.log(JSON.stringify(g_solu[i][j])) ;
+		}	
+	}
+
+	console.log(JSON.stringify(g_solu)) ;
+}
+
+
+var num = g_route.length ;
+var g_out = [] ;
+
+function caculate_chart() {
+	for(var i=0; i<num; ++i) {
+		var inter1=0, inter2=0 ;
+		for(var j=0; j<num; ++j) {
+			if (i == j) continue ;
+			var cross = (i < j ? g_inter[i][j] : g_inter[j][i]) ;
+			
+			if (cross == undefined) 
+				console.log("i:" + i + " j:" + j) ;
+			if (cross.inter) inter1++ ;
+			if (cross.list.length > 0) inter2++ ;
+
+		}
+
+		g_out.push([i, (inter1+inter2) * 100/num]) ;
+	}
+
+	console.log(JSON.stringify(g_out)) ;	
+}
+
+caculate_chart() ;
+
+
+
 
 
