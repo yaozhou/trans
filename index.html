@@ -8,13 +8,16 @@
  <script type="text/javascript" src="js/line.js"></script>
  <script type="text/javascript" src="js/result_line.js"></script>
   <script type="text/javascript" src="js/center.js"></script>
+    <script type="text/javascript" src="js/time.js"></script>
  <script type="text/javascript" src="js/jquery.js"></script>
-  
+  	
 </head>
 <body>
-<div style="width:100%;height:400px" id="container"></div>
+<div style="width:70%;height:450px;float:left" id="container"></div>
+
 <input type="text" id="txt_route"  value=""/> 
 <input type="button" id="btn_check" value="显示/隐藏" type="submit" class="btn">
+
 <input type="text" id="sender"  value=""/> 
 <input type="text" id="receiver"  value=""/> 
 <input type="button" id="btn_caculate" value="计算" type="submit" class="btn">
@@ -52,9 +55,9 @@
 // ] ;
 
 var map = new BMap.Map("container");
-var point = new BMap.Point(121.40854906623, 31.14475218062) ;
+var point = new BMap.Point(121.444743, 31.199145) ;
 map.enableScrollWheelZoom() ;
-map.centerAndZoom(point, 15);
+map.centerAndZoom(point, 13);
 
 function getPos(station_id) {
 
@@ -146,6 +149,8 @@ function getStationFromId(id) {
 var g_polyline = {} ;
 
 function drawRoute() {
+	var D=['00','01','02','03','04','05','06','07','08','09'] ;
+
 	for (var i = 0; i < g_route.length; i++) {
 		var points = [] ;
 		for (var j = 0; j < g_route[i].length; j++) {
@@ -161,10 +166,17 @@ function drawRoute() {
 		polyline.addEventListener("click", function(idx) {
 			var s = getStationFromId(g_route[idx][0]) ;
 			var e = getStationFromId(g_route[idx][g_route[idx].length-1]) ;
-			var out = "idx: " + idx + " " ;
+			var t1 = new Date(g_time[idx][1]) ;
+			var t2 = new Date(g_time[idx][2]) ;
+			var t = (t2 - t1) / 60000 ;
+			var d = (t2 - t1) / g_route[idx].length ;
+
+			var out = "idx:(" + idx + ") start(" +  g_time[idx][1] + ") end(" + g_time[idx][2] + ") stops(" + g_route[idx].length + ") min(" +  t.toFixed() + ")\n " ;
 			for(var k =0 ; k<g_route[idx].length; ++k) {
 				var name = getStationFromId(g_route[idx][k]) ;
-				out += name + "," ;
+				var station_time = t1 ;
+				station_time.setTime(t1.getTime() + d) ;
+				out += name + "[" + station_time.getHours() + ":" + (station_time.getMinutes() > 9  ? station_time.getMinutes() : D[station_time.getMinutes()]) + "] " ;
 			}
 			console.log(out) ;
 

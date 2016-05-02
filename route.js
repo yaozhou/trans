@@ -4,6 +4,9 @@ var line_reader = require('readline') ;
 var stream = require('stream') ;
 var intersection = require('array-intersection');
 
+//cat road | awk -F "," '{print "["$1",\""$2"\",""\""$3"\"],"}'
+// cat road | awk -F "," '{print "["$1",\"""2015/04/01 "$2"\",""\"""2015/04/01 "$3"\"],"}'
+
 require('./js/line.js') ;
 require('./js/result_line.js')
 require('./js/inter.js')
@@ -198,15 +201,43 @@ function get_stations(line, a, b) {
 		var idx_b = get_station_idx(stations, b) ;
 		if (idx_a < 0 || idx_b < 0) continue ;
 
-		if ( idx_a < idx_b) {
-			for(var i = idx_a; i<=idx_b; ++i){
-				list.push(stations[i].id) ;
+		// 四号线环线，处理方式不一样
+		if (line == 4) {  
+			var stations = g_line[4][0].stations ;
+			var s = idx_a ;
+			var e = idx_b ;
+			if ( idx_a > idx_b) {
+				s = idx_b ;
+				e = idx_a ;
 			}
-		}else{
-			for(var i=idx_a; i>=idx_b; --i) {
-				list.push(stations[i].id) ;
+
+			var d1 = e - s ;
+			var d2 = stations.length - e + s + 1 ;
+			if (d1 < d2) {
+				for(var i = s; i<=e; ++i){
+					list.push(stations[i].id) ;
+				}
+			}else{
+				for(var i=e; i<stations.length; ++i) {
+					list.push[stations[i].id] ;
+				}
+				for(var i=0; i<=s; ++i) {
+					list.push[stations[i].id] ;
+				}
+			}
+		}else {
+			if ( idx_a < idx_b) {
+				for(var i = idx_a; i<=idx_b; ++i){
+					list.push(stations[i].id) ;
+				}
+			}else{
+				for(var i=idx_a; i>=idx_b; --i) {
+					list.push(stations[i].id) ;
+				}
 			}
 		}
+
+		
 		
 		return list ;
 	};
@@ -216,9 +247,11 @@ function get_stations(line, a, b) {
 }
 
 
-var g_road_line = [] ;
+
 
 function calculate_client_line() {
+	var g_road_line = [] ;
+
 	var instream = fs.createReadStream('./road') ;
 	var outstream = new stream ;
 	var lr = line_reader.createInterface( instream, outstream ) ;
@@ -236,6 +269,10 @@ function calculate_client_line() {
 			result = result.concat(r) ;
 		};
 		g_road_line.push(result) ;
+
+		for(var i=0; i<3; ++i) {
+			
+		}
 	})	
 
 	lr.on('end', function() {
