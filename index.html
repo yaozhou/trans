@@ -6,42 +6,55 @@
 <title>百度地图</title>
 <script type="text/javascript" src="http://api.map.baidu.com/api?v=1.2"></script>
  <script type="text/javascript" src="js/line.js"></script>
+ <script type="text/javascript" src="js/result_line.js"></script>
+  <script type="text/javascript" src="js/center.js"></script>
+ <script type="text/javascript" src="js/jquery.js"></script>
+  
 </head>
 <body>
-<div style="width:100%;height:800px" id="container"></div>
-<div id="results" style="float:left;width:300px;height:500px;font-size:13px;"></div>
-<div id="log" style="float:left;width:300px;height:500px;font-size:13px;"></div>
+<div style="width:100%;height:400px" id="container"></div>
+<input type="text" id="txt_route"  value=""/> 
+<input type="button" id="btn_check" value="显示/隐藏" type="submit" class="btn">
+<input type="text" id="sender"  value=""/> 
+<input type="text" id="receiver"  value=""/> 
+<input type="button" id="btn_caculate" value="计算" type="submit" class="btn">
+<input type="text" id="txt_inc"  value=""/> 
+<input type="button" id="btn_inc" value="递增" type="submit" class="btn">
 </body>
 </html>
 
 <script type="text/javascript">
 
-
-var g_route = [
-	// 锦江乐园 -> 东川路
-	[10003, 10002, 10001, 10000, 50000, 50001, 50002, 50003, 50004, 50005, 50006] ,
-	// 徐家汇 -> 汶水路
-	[10007, 10008, 10009, 10010, 10011, 10012, 10013, 10014, 10015, 10016, 10017, 10018, 10019] ,
-	// 徐家汇 -> 汶水路
- 	[10007, 10008, 10009, 10010, 10011, 10012, 10013, 10014, 10015, 10016, 10017, 10018, 10019] ,
- 	// 娄山关路 -> 张江高科
-	[20015, 20014, 20013, 20012, 20011, 20010, 20009, 20008, 20007, 20006, 20005, 20004, 20003, 20002] ,
-	// 唐镇 -> 漕河泾开发区
-	[20107, 20108, 20000, 20001, 20002, 20003, 20004, 20005, 20006, 90001, 90002, 90003, 90004, 90005, 90006, 90007, 90008, 90009, 90010, 90011, 90012] ,
-	// 顾戴路 -> 虹梅路
-	[120002, 120003, 120004] ,
-	// 东川路 -> 南京东路
-	[50006, 50005, 50004, 50003, 50002, 50001, 50000, 10000, 10001, 10002, 10003, 10004, 10005, 10006, 10007, 10008, 10009, 10010,10011, 10012, 20010, 20009] ,
-	// 北新泾 -> 人民广场
-	[20017, 20016, 20015, 20014, 20013, 20012, 20011, 20010] ,
-	// 彭浦新村 -> 上海火车站
-	[10020, 10019, 10018, 10017, 10016, 10015] 
-] ;
+// var g_route = [
+// 	// 锦江乐园 -> 东川路
+// 	[10003, 10002, 10001, 10000, 50000, 50001, 50002, 50003, 50004, 50005, 50006] ,
+// 	// 徐家汇 -> 汶水路
+// 	[10007, 10008, 10009, 10010, 10011, 10012, 10013, 10014, 10015, 10016, 10017, 10018, 10019] ,
+// 	// 徐家汇 -> 汶水路
+//  	[10007, 10008, 10009, 10010, 10011, 10012, 10013, 10014, 10015, 10016, 10017, 10018, 10019] ,
+//  	// 娄山关路 -> 张江高科
+// 	[20015, 20014, 20013, 20012, 20011, 20010, 20009, 20008, 20007, 20006, 20005, 20004, 20003, 20002] ,
+// 	// 唐镇 -> 漕河泾开发区
+// 	[20107, 20108, 20000, 20001, 20002, 20003, 20004, 20005, 20006, 90001, 90002, 90003, 90004, 90005, 90006, 90007, 90008, 90009, 90010, 90011, 90012] ,
+// 	// 顾戴路 -> 虹梅路
+// 	[120002, 120003, 120004] ,
+// 	// 东川路 -> 南京东路
+// 	[50006, 50005, 50004, 50003, 50002, 50001, 50000, 10000, 10001, 10002, 10003, 10004, 10005, 10006, 10007, 10008, 10009, 10010,10011, 10012, 20010, 20009] ,
+// 	// 北新泾 -> 人民广场
+// 	[20017, 20016, 20015, 20014, 20013, 20012, 20011, 20010] ,
+// 	// 彭浦新村 -> 上海火车站
+// 	[10020, 10019, 10018, 10017, 10016, 10015] 
+// ] ;
 
 // g_route = [
 // 	[10003, 10002, 10001], 
 // 	[10003, 10002]
 // ] ;
+
+var map = new BMap.Map("container");
+var point = new BMap.Point(121.40854906623, 31.14475218062) ;
+map.enableScrollWheelZoom() ;
+map.centerAndZoom(point, 15);
 
 function getPos(station_id) {
 
@@ -95,68 +108,168 @@ var g_control = [
 
 
 
-var map = new BMap.Map("container");
-var point = new BMap.Point(121.40854906623, 31.14475218062) ;
-map.enableScrollWheelZoom() ;
-map.centerAndZoom(point, 15);
+
 
 var g_road = [] ;
-
- 
-for (var i = 1; i < g_line.length; i++) {
-	if (g_line[i] == undefined || !g_control[i] ) continue ;
-
-	for (var j = 0; j < g_line[i].length; j++) {
-
-		for (var k = 0; k < g_line[i][j].stations.length; k++) {
-			var station = g_line[i][j].stations[k] ;
-			var marker = new BMap.Marker(new BMap.Point(station.position.lng, station.position.lat)) ;
-			marker.setLabel(new BMap.Label(station.name+":"+i)) ;
-			map.addOverlay(marker) ;
-
-			marker.addEventListener("click", function(station){    
-				g_road.push(station.id) ;
-			 	console.log(station.name + station.id) ;
-			 	console.log(g_road) ;
-			}.bind(marker, station)); 
-		};
-	};
-};
-
 var g_color = [ "green", "black", "red", "blue", "gray", "purple"] ;
+function drawMetro() {
+	for (var i = 1; i < g_line.length; i++) {
+		if (g_line[i] == undefined || !g_control[i] ) continue ;
 
-for (var i = 0; i < g_route.length; i++) {
-	var points = [] ;
-	for (var j = 0; j < g_route[i].length; j++) {
-		var point = getPos(g_route[i][j]) ;
-		points.push(point) ;
-	};
+		for (var j = 0; j < g_line[i].length; j++) {
 
-	var color = g_color[ i % g_color.length ] ;
-	var polyline = new BMap.Polyline(points, {strokeColor:color, strokeWeight:6, strokeOpacity:0.8}) ;
-	map.addOverlay(polyline) ;
+			for (var k = 0; k < g_line[i][j].stations.length; k++) {
+				var station = g_line[i][j].stations[k] ;
+				var marker = new BMap.Marker(new BMap.Point(station.position.lng, station.position.lat)) ;
+				marker.setLabel(new BMap.Label(station.name+":"+i)) ;
+				map.addOverlay(marker) ;
 
-// 设置标注
-	for (var j = 0; j < g_route[i].length; j++) {
-		if (j == 0 || j == g_route[i].length - 1) {
+				marker.addEventListener("click", function(station){    
+					g_road.push(station.id) ;
+				 	console.log(station.name + station.id) ;
+				 	console.log(g_road) ;
+				}.bind(marker, station)); 
+			};
+		};
+	}
+}
+
+function getStationFromId(id) {
+
+	var line = Math.floor(id / 10000) ;
+	var sub_line = Math.floor((id - line * 10000) / 100) ;
+	var num = (id - line * 10000 ) % 100 ;
+
+	return g_line[line][sub_line].stations[num].name + '(' + line + ')' ;
+}
+
+var g_polyline = {} ;
+
+function drawRoute() {
+	for (var i = 0; i < g_route.length; i++) {
+		var points = [] ;
+		for (var j = 0; j < g_route[i].length; j++) {
 			var point = getPos(g_route[i][j]) ;
-			var marker = new BMap.Marker(point) ;
-			marker.setLabel(new BMap.Label(String(i))) ;
-			map.addOverlay(marker) ;
+			points.push(point) ;
+		};
 
-			marker.addEventListener("click", function(polyline){    
-				if (polyline.isVisible() ) 
-					polyline.hide() ;
-				else
-					polyline.show() ;
-				console.log(polyline) ;
-			}.bind(marker, polyline)); 
-		}
-	};
+		var color = g_color[ i % g_color.length ] ;
+		var polyline = new BMap.Polyline(points, {strokeColor:color, strokeWeight:6, strokeOpacity:0.8}) ;
+		map.addOverlay(polyline) ;
+		polyline.hide() ;
 
+		polyline.addEventListener("click", function(idx) {
+			var s = getStationFromId(g_route[idx][0]) ;
+			var e = getStationFromId(g_route[idx][g_route[idx].length-1]) ;
+			var out = "idx: " + idx + " " ;
+			for(var k =0 ; k<g_route[idx].length; ++k) {
+				var name = getStationFromId(g_route[idx][k]) ;
+				out += name + "," ;
+			}
+			console.log(out) ;
+
+		}.bind(this, i)) ;
+
+		g_polyline[i] = polyline ;
+
+		// 设置标注
+		// for (var j = 0; j < g_route[i].length; j++) {
+		// 	if (j == 0 || j == g_route[i].length - 1) {
+		// 		var point = getPos(g_route[i][j]) ;
+		// 		var marker = new BMap.Marker(point) ;
+		// 		marker.setLabel(new BMap.Label(String(i))) ;
+		// 		map.addOverlay(marker) ;
+
+		// 		marker.addEventListener("click", function(polyline){    
+		// 			if (polyline.getStrokeWeight() == 6) 
+		// 				//polyline.hide() ;
+		// 				polyline.setStrokeWeight(20) ;
+		// 			else
+		// 				//polyline.show() ;
+		// 				polyline.setStrokeWeight(6) ;
+		// 			console.log(polyline) ;
+		// 		}.bind(marker, polyline)); 
+		// 	}
+		// };	
+	}
+}
+
+function add_inter_change(ary) {
+	var add = [] ;
+	for(var i=0; i<ary.length; ++i) {
+		var change_stations = g_center[ary[i].toString()] ;
+		add = add.concat(change_stations) ;
+	}
+
+	return ary.concat(add) ;
+}
+
+function intersection(a, b) {
+
+	var max_a = add_inter_change(a) ;
+	var max_b = add_inter_change(b) ;
+	return $(max_a).filter(max_b) ;
+}
+
+function getSolu(idx_a, idx_b) {
+	var route_a = g_route[idx_a] ;
+	var route_b = g_route[idx_b] ;
+
+	var ret = {inter:false, list:[]} ;
 	
-};
+	var inter = intersection(route_a, route_b) ;
+	if (inter.length > 0) {
+		//console.log("直接相交:" + JSON.stringify(inter)) ;
+		ret.inter = true ;
+		return ret ; 
+	}
 
+	for(var i=0; i<g_route.length; ++i) {
+		if (i == idx_a|| i == idx_b) continue ;
+
+		var ac = intersection(route_a, g_route[i]) ;
+		var bc = intersection(route_b, g_route[i]) ;
+
+		if (ac.length > 0 && bc.length > 0) {
+			ret.list.push(i) ;
+		}
+	}
+
+	return ret ;
+}
+
+drawRoute() ;
+$("#btn_check").bind("click", function() {
+	var route = parseInt($("#txt_route").val()) ;
+	var polyline = g_polyline[route] ;
+
+	if (polyline.isVisible())
+		polyline.hide() ;
+	else
+		polyline.show() ;
+}) ;
+
+$("#btn_caculate").bind("click", function() {
+	var sender = parseInt($("#sender").val()) ;
+	var receiver = parseInt($("#receiver").val()) ;
+
+	var ret = getSolu(sender, receiver) ;
+	console.log(ret) ;
+})
+
+var g_cur_idx = -1 ;
+$("#btn_inc").bind("click", function() {
+	var idx = parseInt($("#txt_inc").val()) ;
+
+	g_polyline[idx].show() ;
+	$("#txt_inc").val(idx+1) ;
+	if (idx >= 1)
+		g_polyline[idx-1].hide() ;
+	
+})
+
+
+// drawRoute() ;
 
 // var transit = new BMap.TransitRoute(map, {    
 //  renderOptions: {map: map}    
